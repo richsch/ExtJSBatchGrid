@@ -12,13 +12,34 @@
     } ,
     proxy: {
         batchActions: true,
-        type: 'memory',
-        reader: {
-            type: 'json',
-            root: 'data'
-        },
-        writer: {
-            type: 'json'
-        }
+        type: 'rest',
+        url: '/Api/Sport',
+
+//        type: 'ajax',
+//        api: {
+//            read: 'app.php/users/view',
+//            create: 'app.php/users/create',
+//            update: 'app.php/users/update',
+//            destroy: 'app.php/users/destroy'
+//        },
+//        reader: {
+//            type: 'json',
+//            successProperty: 'success',
+//            root: 'data',
+//            messageProperty: 'message'
+//        },
+//        writer: {
+//            type: 'json',
+//            writeAllFields: false,
+//            root: 'data'
+//        },
+        
+//        reader: {
+//            type: 'json',
+//            root: 'data'
+//        },
+//        writer: {
+//            type: 'json'
+//        }
     }
 });
