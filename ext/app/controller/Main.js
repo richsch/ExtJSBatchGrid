@@ -1,27 +1,20 @@
 Ext.define('Transactions.controller.Main', {
     extend: 'Ext.app.Controller',
-    requires: ['Transactions.module.TransactionComms'],
 
-    models: ['InstrumentModel', 'CashModel', 'TradeModel'],
-    stores: ['Transactions.store.InstrumentStore', 'Transactions.store.CashStore', 'Transactions.store.TradeStore'],
-    views: ['CashGrid', 'TradeGrid'],
+    models: ['SportModel', 'DrinkModel'],
+    stores: ['Transactions.store.SportStore', 'Transactions.store.DrinkStore'],
+    views: ['DrinkGrid', 'SportGrid'],
 
     refs: [{
-        ref: 'cashGrid',
-        selector: 'cashgrid'
+        ref: 'drinkGrid',
+        selector: 'drinkgrid'
     }, {
-        ref: 'tradeGrid',
-        selector: 'tradegrid'
-    /*}, {
-        ref: 'secondRow',
-        selector: '#SecondRow'
-    }, {
-        ref: 'thirdRow',
-        selector: '#ThirdRow'*/
+        ref: 'sportGrid',
+        selector: 'sportgrid'
     }],
 
     onLaunch: function (app) {
-        CashGridExt.init(this.getCashGrid(), this);
-        TradeGridExt.init(this.getTradeGrid(), this);
+        SportGridExt.init(this.getSportGrid(), this);
+        DrinkGridExt.init(this.getDrinkGrid(), this);
     }
 });

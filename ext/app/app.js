@@ -15,7 +15,7 @@ Ext.application({
                 width: 960,
                 layout: 'hbox',
                 items: [{
-                    xtype: 'cashgrid',
+                    xtype: 'sportgrid',
                     width: 300,
                     height: 300
                 }, {
@@ -23,7 +23,7 @@ Ext.application({
                     width: 20,
                     vertical: true
                 }, {
-                    xtype: 'tradegrid',
+                    xtype: 'drinkgrid',
                     width: 620,
                     height: 300
                 }]
