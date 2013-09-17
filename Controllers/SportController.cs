@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using GridStore.Models;
+using Newtonsoft.Json.Linq;
 
 namespace GridStore.Controllers
 {
@@ -27,13 +28,21 @@ namespace GridStore.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        public void Post([FromBody]SportModel data)
+        public void Post(object data)
         {
-            Post(new []{data});
+            if (data is JArray)
+            {
+                var models = ((JArray) data).Select(d => d.ToObject<SportModel>());
+                handlePost(models);
+            }
+            else
+            {
+                var model = ((JObject)data).ToObject<SportModel>();
+                handlePost(new []{model});
+            }
         }
 
-        // batch operation
-        public void Post([FromBody]IEnumerable<SportModel> data)
+        private void handlePost(IEnumerable<SportModel> data)
         {
             foreach (var entry in data)
             {
