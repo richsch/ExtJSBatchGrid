@@ -1,77 +1,18 @@
-Ext.override(Ext.Component, {
-    toJQuery: function () {
-        return $(this.getEl().dom);
-    }
-});
+﻿/*
+TODO - resolve requirements by using ext-dev.js
+Ext.require([
+    'Ext.data.*',
+    'Ext.grid.*',
+    'Ext.util.*',
+    'Ext.state.*',
+    'Ext.window.MessageBox'
+]);
+*/
 
-function Round(number, digits) {
-    var multiple = Math.pow(10, digits);
-    var rndedNum = Math.round(number * multiple) / multiple;
-    return rndedNum;
-};
+Ext.require([
+    'Transactions.module.TransactionComms'
+]);
 
-function SAMoney(v) {
-    /*if (typeof v === 'undefined')
-        return '';*/
-    if (v == null)
-        return '';
-    else if (isNaN(v))
-        return '';
-    else
-        return Ext.util.Format.currency(v, 'R', 2);
-}
-
-function GreenRedSAMoney(v) {
-    if (v == null) {
-        return v;
-    }
-
-    if (v == 0) {
-        return SAMoney(v);
-    } else if (v > 0) {
-        return '<span style="color:green;">' + SAMoney(v) + '</span>';
-    } else {
-        return '<span style="color:red;">' + SAMoney(v) + '</span>';
-    }
-}
-
-function GreenRedNumber(v) {
-    if (v == null) {
-        return v;
-    }
-
-    if (v == 0) {
-        return '0';
-    } else if (v > 0) {
-        return '<span style="color:green;">' + Round(v, 2) + '</span>';
-    } else {
-        return '<span style="color:red;">' + Round(v, 2) + '</span>';
-    }
-}
-
-function GreenRedPercent(v) {
-    if (v == null) {
-        return v;
-    }
-
-    if (v == 0) {
-        return '0%';
-    } else if (v > 0) {
-        return '<span style="color:green;">' + Round(v * 100, 2) + '%</span>';
-    } else {
-        return '<span style="color:red;">' + Round(v * 100, 2) + '%</span>';
-    }
-}
-
-function FormatDate(value) {
-    return value ? Ext.Date.dateFormat(value, 'Y-m-d') : '';
-}
-
-
-/* ===========================================
-					TRADE GRID
-	========================================== */
-	
 var CashGridExt = (function () {
     var me = {};
 
@@ -185,7 +126,7 @@ Ext.define('Transactions.view.CashGrid', {
     title: 'Cash',
     selType: 'rowmodel',
     plugins: ['DeleteEmptyCashRowOnCancelEditing'],
-    //store: 'Transactions.store.CashStore',
+    store: 'Transactions.store.CashStore',
     viewConfig: {
         getRowClass: function (record, rowIndex, rowParams, store) {
             switch (record.get("SyncState")) {
@@ -345,11 +286,11 @@ Ext.define('Transactions.view.CashGrid', {
         renderer: function (value, metaData, record, rowIdx, colIdx, store, view) {
             switch (record.get("SyncState")) {
                 case 'Synced':
-                    return '<img src="' + _EXTROOT + '/transactions/content/synced.gif"/>'; // TODO icon sprites
+                    return '<img src="' + _EXTROOT + '/content/synced.gif"/>'; // TODO icon sprites
                 case 'Syncing':
-                    return '<img src="' + _EXTROOT + '/transactions/content/syncing.gif"/>';
+                    return '<img src="' + _EXTROOT + '/content/syncing.gif"/>';
                 case 'SyncError':
-                    return '<img src="' + _EXTROOT + '/transactions/content/syncError.gif"/>';
+                    return '<img src="' + _EXTROOT + '/content/syncError.gif"/>';
             }
         }
     }],
@@ -357,126 +298,4 @@ Ext.define('Transactions.view.CashGrid', {
     resizable: {
         handles: 's'
     }
-});
-
-Ext.define('Transactions.model.CashModel', {
-    extend: 'Ext.data.Model',
-    idProperty: 'ID',
-    fields: [
-        { name: 'ID', type: 'number' },
-        { name: 'Date', type: 'date', dateFormat: 'Y/m/d H:i' }, // TODO - dates consistency
-        //{ name: 'Time', type: 'string' }, // hh:mm
-        { name: 'Type' }, // DEPOSIT/WITHDRAWAL
-        { name: 'Amount', type: 'float' },
-        { name: 'SyncState', type: 'string', defaultValue: 'Synced', persist: false },      // Used internally to toggle C/S validation & S/S input & action errors - see getRowClass(..) & syncError(..)
-        { name: 'SyncErrorMessage', type: 'string', defaultValue: '', persist: false }      // Used internally to preserve S/S input & action errors - see syncError(..)
-    ]
-});
-
-Ext.define('OptimisedCashRest', {
-    extend: 'Ext.data.proxy.Rest',
-    alias: 'proxy.optimisedcashrest',
-    doRequest: function (operation, callback, scope) {
-        // operation.action = create, read, update, destroy
-        if (operation.action == 'create' && CashGridExt.ignoreRow == true) {
-            // An uninitialised record has been added to the store
-            CashGridExt.ignoreRow = false;
-            return;
-        }
-
-        return this.callParent(arguments);
-    }
-});
-
-Ext.define('Transactions.store.CashStore', {
-    extend: 'Ext.data.Store',
-    model: 'Transactions.model.CashModel',
-    autoLoad: true,
-    autoSync: true,
-    data: (_INDEXHTML === true) ? {
-        "success": true,
-        "message": "1 cash movements loaded",
-        "data": [{ "ID": 474, "Date": "2011/01/01 00:00", "Type": "DEPOSIT", "Amount": 10501.00 }]
-    } : window.NR_CashMove_Data ? window.NR_CashMove_Data : null,
-    proxy: {
-        type: (_INDEXHTML === true || window.NR_CashMove_Data) ? 'memory' : 'optimisedcashrest',
-        url: '/Cash/REST/' + window.CSRFToken + '/' + TransactionInputsBarServerSide.inputs.portfolio,
-        reader: {
-            type: 'json',
-            root: 'data'
-        },
-        writer: {
-            type: 'json'
-        },
-        listeners: {
-            exception: function (proxy, response, operation) {
-                //TransactionComms.handleServerSideException(CashGridExt.grid, response);
-            }
-        }
-    },
-    listeners: {
-        write: function (store, operation) {
-            //TransactionComms.handleServerResponse(CashGridExt.grid, operation, 'cash movement');
-        },
-        beforesync: function (options, eOpts) {
-            if (options.create !== undefined) {
-                Ext.Array.each(options.create, function (record) {
-                    var y = CashGridExt.grid.store.findExact('ID', record.data.ID);
-                    if (y != -1) {
-                        //TransactionComms.syncInProgress(CashGridExt.grid, y);
-                    }
-                });
-            }
-            if (options.update !== undefined) {
-                Ext.Array.each(options.update, function (record) {
-                    // Can't rely on record.index to be accurate in the event of deletes
-                    // record.raw is sometimes undefined
-                    var y = CashGridExt.grid.store.findExact('ID', record.data.ID);
-                    if (y != -1) {
-                        //TransactionComms.syncInProgress(CashGridExt.grid, y);
-                    }
-                });
-            }
-            /* Don't need to update icon on delete - there's no row to update anymore
-            if (options.destroy !== undefined) {
-                Ext.Array.each(options.destroy, function (record) {
-                    if (record.index !== undefined) {
-                        TransactionComms.syncInProgress(CashGridExt.grid, 0);
-                    }
-                });
-            }
-            */
-        }
-    },
-    groupField: 'Date',
-    getGroupString: function (instance) {
-        var group = this.groupers.first();
-        if (group) {
-            if (group.property == 'Date') {
-                return Ext.Date.format(instance.get(group.property), 'M Y');
-            }
-            return instance.get(group.property);
-        }
-        return '';
-    }
-});
-
-
-Ext.onReady(function () {
-    Ext.create('Ext.container.Container', {
-        renderTo: Ext.getBody(),
-        width: 700,
-        height: 530,
-
-        items: [{
-            xtype: 'cashgrid',
-            id: 'cashgrid',
-            margin: '10 10 0 10',
-            maxHeight: 350,
-            width: 380,
-            style: {
-                "background-color": 'white'
-            }
-        }]
-    });
 });

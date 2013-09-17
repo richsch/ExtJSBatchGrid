@@ -1,63 +1,166 @@
-<!DOCTYPE HTML>
-<html>
+﻿
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>MyIrr</title>
-
-    <!-- <x-compile> -->
-        <link rel="stylesheet" href="gridstore.css">
-        <!-- <x-bootstrap> -->
-            <!-- 
-            <link rel="stylesheet" href="http://cdn.sencha.com/ext/gpl/4.2.1/resources/css/ext-all-neptune.css">
-            <script src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-dev.js"></script>
-            -->
-            <!-- 
-            <link rel="stylesheet" href="http://cdn.sencha.com/ext/gpl/4.2.0/resources/css/ext-all-neptune.css">
-            <script src="http://cdn.sencha.com/ext/gpl/4.2.0/ext-all-dev.js"></script> 
-            -->
+    <title>NetReturn - Transactions</title>
+    <link href="http://www.netreturn.co.za/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+    <link href="../Content/site.css" rel="stylesheet"/>
+    <!-- Shared theme
+    <link rel="stylesheet" href="../shared/resources/bootstrap/app.css">
+    -->
             <link rel="stylesheet" href="http://cdn.sencha.io/ext-4.1.1-gpl/resources/css/ext-all.css">
-            <script src="http://cdn.sencha.io/ext-4.1.1-gpl/ext-all.js"></script>
-            <!--
-            -->
-        <!-- </x-bootstrap> -->
-        <script src="jquery-1.8.2.min.js"></script>
-		
-		<script type="text/javascript">
-			_EXTROOT = '..';    // for paths inside .js files
-			_INDEXHTML = true;  // change processing in .js files for static index.html
-			
-			var TransactionInputsBarServerSide = (function () {
-				var me = {};
-				me.inputs = {
-					portfolio: 0
-				};
+            <script src="http://cdn.sencha.io/ext-4.1.1-gpl/ext-all-debug.js"></script>
+    <!-- App-specific content -->
+    <link rel="stylesheet" href="content/transactions.css"/>
 
-				me.validation = {
-					status: 0,
-					inputErrors: [],
-					generalError: []
-				};
+    <script src="../Scripts/jquery-1.8.2.min.js"></script>
+    
+    <script type="text/javascript">
+        _EXTROOT = './';    // for paths inside .js files
+        _INDEXHTML = true;  // change processing in .js files for static index.html
 
-				return me;
-			}());
-		</script>
+        var Base = (function () {
+            var me = {};
+
+            me.appRoot = '/';
+            me.qry = '';
+            me.route = '/Transactions';
+
+
+            me.controller = 'Transactions';
+            me.action = 'Index';
+            me.screenErrors = [];
+            me.screenWarnings = [];
+
+            // Matches ResponseTypeFlags enumeration: NetReturn\Models\Output\BaseVM.cs
+            me.ResponseType = {
+                Success: { value: 0, name: "Success" },
+                Error_Input: { value: 1, name: "Input Error" },
+                Error_Input_ServerSide: { value: 2, name: "ServerSide Input Error" },
+                Error_General: { value: 4, name: "General Error" }
+            };
+
+            return me;
+        }());
 		
-        <script src="MyGridStore.js?1"></script>
+		Ext.onReady(function(){
+			Ext.Loader.setConfig({enabled:true});
+		});
+    </script>
+
+    <script type="text/javascript">
+        window.CSRFToken = 'a555e461-0f2c-4bd6-bd86-7c116c03e617';
+    </script>
+    
+    <!-- EXT-JS: Transactions app -->
+    <script type="text/javascript">
+        var TransactionInputsBarServerSide = (function () {
+            var me = {};
+            me.inputs = {
+                portfolio: 0
+            };
+
+            me.validation = {
+                status: 0,
+                inputErrors: [],
+                generalError: []
+            };
+
+            return me;
+        }());
+    </script>
+
+    <script type="text/javascript" src="./data.js"></script>
+    <!-- src="/Transactions/data/a555e461-0f2c-4bd6-bd86-7c116c03e617?_dc=195bd969-a1d5-4738-9bd7-c63b037c2d52&amp;portfolioInt=0" -->
+
+    <script type="text/javascript" src="../Scripts/NR/nr.common.js?_dc=634792372078368590"></script>
+    <script type="text/javascript" src="../Scripts/NR/nr.date.js?_dc=634942043703047550"></script>
+    <script type="text/javascript" src="../Scripts/NR/nr.map.js?_dc=634803311282933538"></script>
+
+        <script src="./renderers.js"></script>
+        <script src="app/app.js"></script>
     <!-- </x-compile> -->
 </head>
-<body></body>
+<body lang="en">
+    <div class="page">
+        <div id="header">
+            <div>
+                <img src="../../Content/NetReturn.png" alt="NetReturn">
+            </div>
+            <div id="logindisplay">
+                <p>
+                    Hello, <a class="username" href="#" title="Change password">james</a>!
+       
+                    <a href="#">Log off</a>
+                </p>
+            </div>
+            <div id="dock">
+                <ul style="padding-left: 0px;">
+                    <li style="padding-left: 0px;">
+
+                        <a href="#">Home</a>
+                    </li>
+                    <li>
+                        <a href="#">Analysis ▾</a>
+                        <ul style="display: none;">
+                            <li><a href="#">Summary</a></li>
+                            <li class="selected"><a href="../app1/index.html">My Investment Returns (IRR)</a></li>
+                            <li><a href="#">Portfolio Performance (TWR)</a></li>
+                            <li><a href="#">Help: IRR vs TWR?</a></li>
+                        </ul>
+                    </li>
+                    <li class="selected">
+                        <a href="#">Transactions</a>
+                    </li>
+                    <li>
+                        <a href="#">Market Data</a>
+                    </li>
+                    <li>
+
+                        <a href="#">Support ▾</a>
+                        <ul style="display: none;">
+                            <li><a href="#">Videos</a></li>
+                            <li><a href="#">Articles</a></li>
+                            <li><a href="#">Request support</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="../settings/index.html">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="aboveMain"></div>
+        <div id="main"></div>
+        <div id="footer"></div>
+    </div>
+
+    <script type="text/javascript">
+        // Expand submenu on hover (for mouse interface)
+        $("#dock li").has("ul").hover(function () {
+            $(this).addClass("current").children("ul").show();//.fadeIn();
+        }, function () {
+            $(this).removeClass("current").children("ul").hide();
+        });
+
+        // Expand submenu on click (for touch interface)
+        $("#dock > ul > li").has("ul").click(function (e) {
+            var visible = $(e.srcElement).data('menu visible');
+            if (visible === undefined || visible === false) {
+                $(this).addClass("current").children("ul").show();
+                $(e.srcElement).data('menu visible', true);
+            } else {
+                $(this).removeClass("current").children("ul").hide();
+                $(e.srcElement).data('menu visible', false);
+            }
+            return false;   // e.preventDefault();
+        });
+
+        // Prevent click() handler on top level menu from being attached to submenu items
+        $("#dock > ul > li > ul li a").click(function (e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
 </html>
-<!--
-NOTE: In order to try different Ext versions you have to manually change "External Resources" on the left. 
-
-CDN urls:
-4.2.1 = http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-dev.js (breaks - see javascript console)
-4.2.0 = http://cdn.sencha.com/ext/gpl/4.2.0/ext-all-dev.js (ok but slow on switching)
-4.1.1 = http://cdn.sencha.io/ext-4.1.1-gpl/ext-all.js (ok but old, and neptune theme broken)
-
-/*
-@import 'http://cdn.sencha.com/ext/gpl/4.2.1/resources/css/ext-all-neptune.css'
-@import 'http://cdn.sencha.com/ext/gpl/4.2.0/resources/css/ext-all-neptune.css'
-*/
-@import 'http://cdn.sencha.io/ext-4.1.1-gpl/resources/css/ext-all.css'
--->
