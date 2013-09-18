@@ -2,8 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>NetReturn - Transactions</title>
-    <link href="http://www.netreturn.co.za/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <title>Transactions</title>
     <meta name="viewport" content="width=device-width" />
     <link href="../Content/site.css" rel="stylesheet"/>
     <!-- Shared theme
@@ -33,7 +32,6 @@
             me.screenErrors = [];
             me.screenWarnings = [];
 
-            // Matches ResponseTypeFlags enumeration: NetReturn\Models\Output\BaseVM.cs
             me.ResponseType = {
                 Success: { value: 0, name: "Success" },
                 Error_Input: { value: 1, name: "Input Error" },
@@ -85,48 +83,11 @@
 <body lang="en">
     <div class="page">
         <div id="header">
-            <div>
-                <img src="../../Content/NetReturn.png" alt="NetReturn">
-            </div>
-            <div id="logindisplay">
-                <p>
-                    Hello, <a class="username" href="#" title="Change password">james</a>!
-       
-                    <a href="#">Log off</a>
-                </p>
-            </div>
             <div id="dock">
                 <ul style="padding-left: 0px;">
                     <li style="padding-left: 0px;">
 
-                        <a href="#">Home</a>
-                    </li>
-                    <li>
-                        <a href="#">Analysis ▾</a>
-                        <ul style="display: none;">
-                            <li><a href="#">Summary</a></li>
-                            <li class="selected"><a href="../app1/index.html">My Investment Returns (IRR)</a></li>
-                            <li><a href="#">Portfolio Performance (TWR)</a></li>
-                            <li><a href="#">Help: IRR vs TWR?</a></li>
-                        </ul>
-                    </li>
-                    <li class="selected">
-                        <a href="#">Transactions</a>
-                    </li>
-                    <li>
-                        <a href="#">Market Data</a>
-                    </li>
-                    <li>
-
-                        <a href="#">Support ▾</a>
-                        <ul style="display: none;">
-                            <li><a href="#">Videos</a></li>
-                            <li><a href="#">Articles</a></li>
-                            <li><a href="#">Request support</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="../settings/index.html">Settings</a>
+                        <a href="/">Home</a>
                     </li>
                 </ul>
             </div>
