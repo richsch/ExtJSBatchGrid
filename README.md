@@ -7,6 +7,7 @@ Concept being that there are two grids with two separate stores - their sync ope
 are batched, across BOTH grids. ie. A single batch operation will sync data for both stores.
 
 REST functionality provided by WebAPI controllers.
-DrinkController - handles the DrinkStore directly
-SportController - handles the SportStore directly
+
+DrinkController - handles the DrinkStore directly<br/>
+SportController - handles the SportStore directly<br/>
 BatchController - will handle operations for all stores
