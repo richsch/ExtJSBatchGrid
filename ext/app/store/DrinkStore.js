@@ -3,22 +3,18 @@
     model: 'Transactions.model.DrinkModel',
     autoLoad: true,
     autoSync: false,
-    data: {
-        "success": true,
-        "message": "1 cash movements loaded",
-        "data": [{ "ID": 474, "Type": "Vodka" },
-                 { "ID": 475, "Type": "Wine" },
-                 { "ID": 476, "Type": "Beer" }]
-    },
     proxy: {
         batchActions: true,
-        type: 'memory',
+        type: 'rest',
+        url: '/Api/Drink',
+
         reader: {
             type: 'json',
             root: 'data'
         },
         writer: {
-            type: 'json'
+            type: 'json',
+            allowSingle: false  // ensure always an array is sent, even if only one item
         }
     }
 });

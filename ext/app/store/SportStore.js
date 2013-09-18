@@ -39,7 +39,8 @@
             root: 'data'
         },
         writer: {
-            type: 'json'
+            type: 'json',
+            allowSingle: false
         }
     }
 });

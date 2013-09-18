@@ -31,6 +31,23 @@ var DrinkGridExt = (function () {
         grid.getSelectionModel().on('selectionchange', function (selModel, selections) {
             grid.down('#delete').setDisabled(selections.length === 0);
         });
+        me.store.addListener('datachanged', function (g, eOpts) {
+            if (g.getModifiedRecords().length > 0 || g.getRemovedRecords().length > 0) {
+                grid.down('#cancel').setDisabled(false);
+                grid.down('#save').setDisabled(false);
+            } else {
+                grid.down('#cancel').setDisabled(true);
+                grid.down('#save').setDisabled(true);
+            }
+        });
+    }
+    
+    me.undoChanges = function () {
+        me.store.rejectChanges();
+
+        // need to handle the cancel case manually - no event is fire after the reject is complete
+        me.grid.down('#cancel').setDisabled(true);
+        me.grid.down('#save').setDisabled(true);
     }
 
     return me;
@@ -120,14 +137,14 @@ Ext.define('Transactions.view.DrinkGrid', {
         }, {
             itemId: 'cancel',
             text: 'Cancel',
-            disabled: false,
+            disabled: true,
             handler: function () {
-                DrinkGridExt.store.rejectChanges();
+                DrinkGridExt.undoChanges();
             }
         }, {
             itemId: 'save',
             text: 'Save',
-            disabled: false,
+            disabled: true,
             handler: function() {
                 DrinkGridExt.store.sync();
             }

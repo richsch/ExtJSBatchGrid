@@ -9,12 +9,12 @@ using Newtonsoft.Json.Linq;
 
 namespace GridStore.Controllers
 {
-    public class SportController : ApiController
+    public class DrinkController : ApiController
     {
-        public static List<SportModel> sports = new List<SportModel>(){
-            new SportModel(){ID = 1, Sport = "Rugby"},
-            new SportModel(){ID = 2, Sport = "Cricket"},
-            new SportModel(){ID = 3, Sport = "Tennis"},
+        public static List<DrinkModel> drinks = new List<DrinkModel>(){
+            new DrinkModel(){ID = 1, Type = "Coke"},
+            new DrinkModel(){ID = 2, Type = "Sprite"},
+            new DrinkModel(){ID = 3, Type = "Beer"},
         }; 
 
         public HttpResponseMessage Get()
@@ -23,20 +23,20 @@ namespace GridStore.Controllers
                 {
                     success = true,
                     message = "",
-                    data = sports
+                    data = drinks
                 };
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        public HttpResponseMessage Post([FromBody]IEnumerable<SportModel> data)
+        public HttpResponseMessage Post([FromBody]IEnumerable<DrinkModel> data)
         {
-            var results = new List<SportModel>();
+            var results = new List<DrinkModel>();
             foreach (var entry in data)
             {
-                var newId = sports.Max(d => d.ID) + 1;
+                var newId = drinks.Max(d => d.ID) + 1;
                 entry.ID = newId;
 
-                sports.Add(entry);
+                drinks.Add(entry);
                 results.Add(entry);
             }
             var result = new
@@ -45,26 +45,27 @@ namespace GridStore.Controllers
                 message = "",
                 data = results
             };
+            // return the updated rows with their IDs for ext.JS to update the client-side values
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        public void Put([FromBody]IEnumerable<SportModel> data)
+        public void Put([FromBody]IEnumerable<DrinkModel> data)
         {
             foreach (var entry in data)
             {
-                var record = sports.SingleOrDefault(d => d.ID == entry.ID);
+                var record = drinks.SingleOrDefault(d => d.ID == entry.ID);
                 if (record != null)
                 {
-                    record.Sport = entry.Sport;
+                    record.Type = entry.Type;
                 }
             }
         }
 
-        public void Delete(IEnumerable<SportModel> data)
+        public void Delete(IEnumerable<DrinkModel> data)
         {
             foreach (var entry in data)
             {
-                sports.Remove(sports.SingleOrDefault(d => d.ID == entry.ID));
+                drinks.Remove(drinks.SingleOrDefault(d => d.ID == entry.ID));
             }
         }
     }

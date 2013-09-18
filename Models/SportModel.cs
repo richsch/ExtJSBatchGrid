@@ -5,10 +5,14 @@ using System.Web;
 
 namespace GridStore.Models
 {
-    public class SportModel
+    public class SportModel : BatchGridModel
     {
         public int ID { get; set; }
         public string Sport { get; set; }
-        public bool IsNew { get; set; }
+
+        public override string ModelType
+        {
+            get { return "SportModel"; }
+        }
     }
 }
