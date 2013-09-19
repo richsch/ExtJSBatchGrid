@@ -5,7 +5,7 @@ using System.Web;
 
 namespace GridStore.Models
 {
-    public class DrinkModel : BatchGridModel
+    public class DrinkModel : BatchItemModel
     {
         public int ID { get; set; }
         public string Type { get; set; }

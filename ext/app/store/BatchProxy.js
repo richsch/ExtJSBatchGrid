@@ -51,8 +51,62 @@ var BatchProxyHandler = (function () {
         }
     }
 
-    me.sync = function() {
+    me.sync = function () {
+        var updates = getStoreSyncData();
         
+        Ext.Ajax.request({
+            url: '/Api/Batch',
+            method: 'POST',
+            jsonData: updates,
+            success: handleStoreSyncResponse,
+            failure: function (response, opts) {
+                alert('server-side failure with status code ' + response.status + '. Message: '+ response.responseText);
+                console.log('server-side failure with status code ' + response.status);
+            }
+        });
+    }
+    
+    function handleStoreSyncResponse(response, opts) {
+        var obj = Ext.decode(response.responseText);
+        console.dir(obj);
+    }
+    
+    function getStoreSyncData() {
+        var results = [];
+        for (var i = 0; i < me.stores.length; i++) {
+            var s = me.stores[i];
+
+            var deletions = s.getRemovedRecords();
+            var additions = s.getNewRecords();
+            var updates = s.getModifiedRecords();
+
+            if (deletions.length > 0 || additions.length > 0 || updates.length > 0) {
+                results.push({
+                    store: s.storeId,
+                    create: createTuple(additions, true, false),
+                    update: createTuple(updates, true, true),
+                    destroy: createTuple(deletions, false, null),
+                });
+            }
+        }
+        return results;
+    }
+    
+    // creates tuple of internalId and record's data
+    // filtering is needed for Addition & Update -> added records
+    // are also returned by the getModifiedRecords() call
+    function createTuple(records, filterIndex, hasIndex) {
+        var result = [];
+        for (var i = 0; i < records.length; i++) {
+            if (filterIndex) {
+                if (hasIndex == (records[i].index != undefined)) {
+                    result.push({ internalId: records[i].internalId, data: records[i].data });
+                }
+            } else {
+                result.push({ internalId: records[i].internalId, data: records[i].data });
+            }
+        }
+        return result;
     }
     
     me.rejectChanges = function() {
