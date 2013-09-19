@@ -233,9 +233,11 @@
     <Content Include="ext\.sencha\app\plugin.xml" />
     <Content Include="ext\app\app.js" />
     <Content Include="ext\app\controller\Main.js" />
+    <Content Include="ext\app\model\BatchModel.js" />
     <Content Include="ext\app\model\DrinkModel.js" />
     <Content Include="ext\app\model\SportModel.js" />
     <Content Include="ext\app\module\TransactionComms.js" />
+    <Content Include="ext\app\store\BatchProxy.js" />
     <Content Include="ext\app\store\CashStore.js" />
     <Content Include="ext\app\store\SportStore.js" />
     <Content Include="ext\app\store\InstrumentStore.js" />
