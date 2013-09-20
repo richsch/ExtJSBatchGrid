@@ -104,6 +104,24 @@ var BatchProxyHandler = (function () {
     }
 
     function handleStoreCreates(store, results) {
+        // for each added record, find it in the results object (using internalId)
+        // and update the ID of the record with the new ID from the server/DB
+        var added = store.getNewRecords();
+        for (var i = 0; i < added.length; i++) {
+            var record = getRecordWithInternalId(added[i].internalId, results);
+            if (record != undefined) {
+                added[i].set('ID', record.ID);
+                added[i].commit();
+            }
+        }
+    }
+    
+    function getRecordWithInternalId(internalId, list) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].InternalId === internalId)
+                return list[i].Data;
+        }
+        return undefined;
     }
 
     function getStore(storeId) {

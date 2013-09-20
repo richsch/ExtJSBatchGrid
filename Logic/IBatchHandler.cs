@@ -16,7 +16,7 @@ namespace GridStore.Logic
         T ConvertObject(JObject data);
     }
 
-    public abstract class BatchHandler<T> : BatchHandler, IBatchHandler<T>
+    public abstract class BatchHandler<T> : BatchHandler, IBatchHandler<T> where T : BatchItemModel
     {
         public abstract IEnumerable<T> Create(IEnumerable<T> data);
         public abstract void Update(IEnumerable<T> data);
@@ -26,11 +26,15 @@ namespace GridStore.Logic
         public override IEnumerable<BatchAction> HandleCreate(IEnumerable<BatchAction> data)
         {
             var items = data.Select(d => d.Data).Select(ConvertObject);
-            var results = Create(items);
+            var results = Create(items).ToArray();
 
-            // TODO: iterate through results and update ID fields of data items
+            var returnResult = data.ToArray();
+            for (int i = 0; i < results.Length; i++)
+            {
+                returnResult[i].Data["ID"] = results[i].ID;
+            }
 
-            return data;
+            return returnResult;
         }
 
         public override void HandleUpdate(IEnumerable<JObject> data)
