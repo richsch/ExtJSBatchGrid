@@ -35,25 +35,21 @@ var SportGridExt = (function () {
             grid.down('#delete').setDisabled(selections.length === 0);
         });
         
-        me.store.addListener('rejected', function (g) {
-            if (g.getModifiedRecords().length > 0 || g.getRemovedRecords().length > 0) {
-                grid.down('#cancel').setDisabled(false);
-                grid.down('#save').setDisabled(false);
-            } else {
-                grid.down('#cancel').setDisabled(true);
-                grid.down('#save').setDisabled(true);
-            }
-        });
-        
-        me.store.addListener('datachanged', function (g, eOpts) {
-            if (g.getModifiedRecords().length > 0 || g.getRemovedRecords().length > 0) {
-                grid.down('#cancel').setDisabled(false);
-                grid.down('#save').setDisabled(false);
-            } else {
-                grid.down('#cancel').setDisabled(true);
-                grid.down('#save').setDisabled(true);
-            }
-        });
+        me.store.addListener('rejected', me.checkButtons);
+        me.store.addListener('datachanged', me.checkButtons);
+        me.store.addListener('add', me.checkButtons);
+        me.store.addListener('update', me.checkButtons);
+        me.store.addListener('remove', me.checkButtons);
+    }
+    
+    me.checkButtons = function (g) {
+        if (g.getModifiedRecords().length > 0 || g.getRemovedRecords().length > 0) {
+            me.grid.down('#cancel').setDisabled(false);
+            me.grid.down('#save').setDisabled(false);
+        } else {
+            me.grid.down('#cancel').setDisabled(true);
+            me.grid.down('#save').setDisabled(true);
+        }
     }
 
     me.undoChanges = function () {

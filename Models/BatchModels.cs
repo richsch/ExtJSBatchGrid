@@ -8,6 +8,7 @@ namespace GridStore.Models
 {
     public abstract class BatchItemModel
     {
+        public int ID { get; set; }
         public abstract string ModelType { get; }
         public bool IsNew { get; set; }
     }

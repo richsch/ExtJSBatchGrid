@@ -168,6 +168,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Logic\DrinkLogic.cs" />
+    <Compile Include="Logic\IBatchHandler.cs" />
+    <Compile Include="Logic\SportLogic.cs" />
     <Compile Include="Models\BatchModels.cs" />
     <Compile Include="Models\DrinkModel.cs" />
     <Compile Include="Models\SportModel.cs" />

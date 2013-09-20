@@ -35,17 +35,26 @@ var BatchProxyHandler = (function () {
         me.stores.push(store);
 
         store.addListener('datachanged', me.checkStoreStatus);
+        store.addListener('add', me.checkStoreStatus);
+        store.addListener('remove', me.checkStoreStatus);
+        store.addListener('update', me.checkStoreStatus);
         store.addListener('rejected', me.checkStoreStatus);
     }
     
     me.checkStoreStatus = function (g, eOpts) {
         if (me.cancelButton === undefined || me.saveButton === undefined)
             return;
-        
-        if (g.getModifiedRecords().length > 0 || g.getRemovedRecords().length > 0) {
-            me.cancelButton.setDisabled(false);
-            me.saveButton.setDisabled(false);
-        } else {
+
+        var changes = true;
+        for (var i = 0; i < me.stores.length; i++) {
+            var store = me.stores[i];
+            if (store.getModifiedRecords().length > 0 || store.getRemovedRecords().length > 0) {
+                me.cancelButton.setDisabled(false);
+                me.saveButton.setDisabled(false);
+                changes = false;
+            }
+        }
+        if (changes) {
             me.cancelButton.setDisabled(true);
             me.saveButton.setDisabled(true);
         }
@@ -67,8 +76,42 @@ var BatchProxyHandler = (function () {
     }
     
     function handleStoreSyncResponse(response, opts) {
-        var obj = Ext.decode(response.responseText);
-        console.dir(obj);
+        var results = Ext.decode(response.responseText);
+        for (var i = 0; i < results.length; i++) {
+            var store = getStore(results[i].Store);
+
+            handleStoreCreates(store, results[i].Create);
+            handleStoreUpdates(store);
+            handleStoreDeletes(store);
+            store.fireEvent('datachanged', store);
+        }
+    }
+    
+    function handleStoreDeletes(store) {
+        // to commit deletes, simply clear out store's collection
+        // of removed items
+        store.removed.length = 0;
+    }
+    
+    function handleStoreUpdates(store) {
+        // commit each record that was changed
+        var updates = store.getUpdatedRecords();
+        for (var i = 0; i < updates.length; i++) {
+            if (updates[i].index != undefined) {
+                updates[i].commit();
+            }
+        }
+    }
+
+    function handleStoreCreates(store, results) {
+    }
+
+    function getStore(storeId) {
+        for (var i = 0; i < me.stores.length; i++) {
+            if (me.stores[i].storeId === storeId)
+                return me.stores[i];
+        }
+        return undefined;
     }
     
     function getStoreSyncData() {
@@ -78,14 +121,14 @@ var BatchProxyHandler = (function () {
 
             var deletions = s.getRemovedRecords();
             var additions = s.getNewRecords();
-            var updates = s.getModifiedRecords();
+            var updates = s.getUpdatedRecords();
 
             if (deletions.length > 0 || additions.length > 0 || updates.length > 0) {
                 results.push({
-                    store: s.storeId,
-                    create: createTuple(additions, true, false),
-                    update: createTuple(updates, true, true),
-                    destroy: createTuple(deletions, false, null),
+                    Store: s.storeId,
+                    Create: createTuple(additions),
+                    Update: createTuple(updates),
+                    Destroy: createTuple(deletions),
                 });
             }
         }
@@ -98,13 +141,7 @@ var BatchProxyHandler = (function () {
     function createTuple(records, filterIndex, hasIndex) {
         var result = [];
         for (var i = 0; i < records.length; i++) {
-            if (filterIndex) {
-                if (hasIndex == (records[i].index != undefined)) {
-                    result.push({ internalId: records[i].internalId, data: records[i].data });
-                }
-            } else {
-                result.push({ internalId: records[i].internalId, data: records[i].data });
-            }
+            result.push({ internalId: records[i].internalId, data: records[i].data });
         }
         return result;
     }

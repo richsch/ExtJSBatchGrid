@@ -7,7 +7,6 @@ namespace GridStore.Models
 {
     public class DrinkModel : BatchItemModel
     {
-        public int ID { get; set; }
         public string Type { get; set; }
 
         public override string ModelType

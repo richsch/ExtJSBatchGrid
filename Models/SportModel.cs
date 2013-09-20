@@ -7,7 +7,6 @@ namespace GridStore.Models
 {
     public class SportModel : BatchItemModel
     {
-        public int ID { get; set; }
         public string Sport { get; set; }
 
         public override string ModelType

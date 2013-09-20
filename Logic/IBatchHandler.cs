@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using GridStore.Models;
+using Newtonsoft.Json.Linq;
+
+namespace GridStore.Logic
+{
+    public interface IBatchHandler<T>
+    {
+        IEnumerable<T> Create(IEnumerable<T> data);
+        void Update(IEnumerable<T> data);
+        void Delete(IEnumerable<T> data);
+        T ConvertObject(JObject data);
+    }
+
+    public abstract class BatchHandler<T> : BatchHandler, IBatchHandler<T>
+    {
+        public abstract IEnumerable<T> Create(IEnumerable<T> data);
+        public abstract void Update(IEnumerable<T> data);
+        public abstract void Delete(IEnumerable<T> data);
+        public abstract T ConvertObject(JObject data);
+
+        public override IEnumerable<BatchAction> HandleCreate(IEnumerable<BatchAction> data)
+        {
+            var items = data.Select(d => d.Data).Select(ConvertObject);
+            var results = Create(items);
+
+            // TODO: iterate through results and update ID fields of data items
+
+            return data;
+        }
+
+        public override void HandleUpdate(IEnumerable<JObject> data)
+        {
+            Update(data.Select(ConvertObject));
+        }
+
+        public override void HandleDelete(IEnumerable<JObject> data)
+        {
+            Delete(data.Select(ConvertObject));
+        }
+    }
+
+    public abstract class BatchHandler
+    {
+        public abstract IEnumerable<BatchAction> HandleCreate(IEnumerable<BatchAction> data); 
+        public abstract void HandleUpdate(IEnumerable<JObject> data);
+        public abstract void HandleDelete(IEnumerable<JObject> data);
+    }
+}

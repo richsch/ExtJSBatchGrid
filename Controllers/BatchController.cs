@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using GridStore.Logic;
 using GridStore.Models;
 using Newtonsoft.Json.Linq;
 
@@ -11,15 +12,39 @@ namespace GridStore.Controllers
 {
     public class BatchController : ApiController
     {
-        public void Post(IEnumerable<BatchModel> data)
+        public IEnumerable<BatchModel> Post(IEnumerable<BatchModel> data)
         {
             foreach (var batch in data)
             {
-                var store = batch.Store;
-                // TODO: select appropriate logic element based on the store
-                // TODO: apply Create actions and capture updated results (new IDs)
-                // TODO: apply Update actions and return IDs
-                // TODO: apply Destroy actions and return IDs
+                var handler = GetBatchHandler(batch.Store);
+
+                if (batch.Create.Any())
+                {
+                    var results = handler.HandleCreate(batch.Create);
+                    batch.Create = results;
+                }
+                if (batch.Update.Any())
+                {
+                    handler.HandleUpdate(batch.Update.Select(d => d.Data));
+                    batch.Update = new List<BatchAction>();
+                }
+                if (batch.Destroy.Any())
+                {
+                    handler.HandleDelete(batch.Destroy.Select(d => d.Data));
+                    batch.Destroy = new List<BatchAction>();
+                }
+            }
+            return data;
+        }
+
+        private BatchHandler GetBatchHandler(string storeName)
+        {
+            switch (storeName)
+            {
+                case "Transactions.store.DrinkStore":
+                    return new DrinkLogic();
+                case "Transactions.store.SportStore":
+                    return new SportLogic();
             }
             throw new NotImplementedException();
         }

@@ -4,41 +4,28 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using GridStore.Logic;
 using GridStore.Models;
-using Newtonsoft.Json.Linq;
 
 namespace GridStore.Controllers
 {
     public class SportController : ApiController
     {
-        public static List<SportModel> sports = new List<SportModel>(){
-            new SportModel(){ID = 1, Sport = "Rugby"},
-            new SportModel(){ID = 2, Sport = "Cricket"},
-            new SportModel(){ID = 3, Sport = "Tennis"},
-        }; 
-
         public HttpResponseMessage Get()
         {
             var result = new
                 {
                     success = true,
                     message = "",
-                    data = sports
+                    data = SportLogic.Sports
                 };
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public HttpResponseMessage Post([FromBody]IEnumerable<SportModel> data)
         {
-            var results = new List<SportModel>();
-            foreach (var entry in data)
-            {
-                var newId = sports.Max(d => d.ID) + 1;
-                entry.ID = newId;
-
-                sports.Add(entry);
-                results.Add(entry);
-            }
+            var logic = new SportLogic();
+            var results = logic.Create(data);
             var result = new
             {
                 success = true,
@@ -50,22 +37,14 @@ namespace GridStore.Controllers
 
         public void Put([FromBody]IEnumerable<SportModel> data)
         {
-            foreach (var entry in data)
-            {
-                var record = sports.SingleOrDefault(d => d.ID == entry.ID);
-                if (record != null)
-                {
-                    record.Sport = entry.Sport;
-                }
-            }
+            var logic = new SportLogic();
+            logic.Update(data);
         }
 
         public void Delete(IEnumerable<SportModel> data)
         {
-            foreach (var entry in data)
-            {
-                sports.Remove(sports.SingleOrDefault(d => d.ID == entry.ID));
-            }
+            var logic = new SportLogic();
+            logic.Delete(data);
         }
     }
 }
