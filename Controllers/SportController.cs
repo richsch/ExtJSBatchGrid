@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using GridStore.Logic;
-using GridStore.Models;
+using Grid.Auth.Logic;
+using Grid.Auth.Models;
 
-namespace GridStore.Controllers
+namespace Grid.Auth.Controllers
 {
+    [Authorize]
     public class SportController : ApiController
     {
         public HttpResponseMessage Get()

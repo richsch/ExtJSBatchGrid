@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace GridStore.Models
+namespace Grid.Auth.Models
 {
     public abstract class BatchItemModel
     {

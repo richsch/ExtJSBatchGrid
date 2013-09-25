@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace GridStore
+namespace Grid.Auth
 {
     public class FilterConfig
     {

@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace GridStore
+namespace Grid.Auth
 {
     public class BundleConfig
     {

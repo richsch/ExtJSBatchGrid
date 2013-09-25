@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using GridStore.Models;
+using Grid.Auth.Models;
 using Newtonsoft.Json.Linq;
 
-namespace GridStore.Logic
+namespace Grid.Auth.Logic
 {
     public class DrinkLogic : BatchHandler<DrinkModel>
     {

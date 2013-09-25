@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
-using GridStore.Logic;
-using GridStore.Models;
-using Newtonsoft.Json.Linq;
+using Grid.Auth.Logic;
+using Grid.Auth.Models;
 
-namespace GridStore.Controllers
+namespace Grid.Auth.Controllers
 {
+    [Authorize]
     public class BatchController : ApiController
     {
         public IEnumerable<BatchModel> Post(IEnumerable<BatchModel> data)
