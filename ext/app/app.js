@@ -41,6 +41,13 @@ Ext.application({
                                 initComponent: function () {
                                     BatchProxyHandler.saveButton = this;
                                 }
+                            },'-',
+                            {
+                                xtype: 'text',
+                                textConfig: {},
+                                initComponent: function() {
+                                    BatchProxyHandler.statusLabel = this;
+                                }
                             }]
                     }]
                 },

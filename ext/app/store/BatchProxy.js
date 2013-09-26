@@ -27,6 +27,7 @@ var BatchProxyHandler = (function () {
 
     me.cancelButton = undefined;
     me.saveButton = undefined;
+    me.statusLabel = undefined;
     
     me.registerStore = function(store) {
         if (me.stores.indexOf(store) > -1)
@@ -51,13 +52,27 @@ var BatchProxyHandler = (function () {
             if (store.getModifiedRecords().length > 0 || store.getRemovedRecords().length > 0) {
                 me.cancelButton.setDisabled(false);
                 me.saveButton.setDisabled(false);
+                window.onbeforeunload = unloadMessage;
                 changes = false;
+                var deletions = store.getRemovedRecords().length;
+                var additions = store.getNewRecords().length;
+                var updates = store.getUpdatedRecords().length;
+                var msg = additions + ' add(s), ' + updates + ' update(s), ' + deletions + ' deletion(s) pending';
+                me.statusLabel.setText(msg);
             }
         }
         if (changes) {
             me.cancelButton.setDisabled(true);
             me.saveButton.setDisabled(true);
+            window.onbeforeunload = null;
+            if (me.statusLabel) {
+                me.statusLabel.setText('');
+            }
         }
+    }
+    
+    function unloadMessage() {
+        return 'You have unsaved changes. Are you sure you wish to leave this page?';
     }
 
     me.sync = function () {
