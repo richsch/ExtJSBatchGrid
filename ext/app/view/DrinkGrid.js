@@ -15,6 +15,32 @@ Ext.require([
 
 Ext.require('Transactions.store.BatchProxy');
 
+// tooltip code from http://www.sencha.com/forum/showthread.php?189654-Adding-Tooltip-to-Grid-Row
+function createTooltip(view) {
+    view.tip = Ext.create('Ext.tip.ToolTip', {
+        // The overall target element.
+        target: view.el,
+        // Each grid row causes its own seperate show and hide.
+        delegate: view.itemSelector,
+        // Moving within the row should not hide the tip.
+        trackMouse: true,
+        // Render immediately so that tip.body can be referenced prior to the first show.
+        renderTo: Ext.getBody(),
+        listeners: {
+            // Change content dynamically depending on which element triggered the show.
+            beforeshow: function (tip, eOpts) {
+                var tooltip = view.getRecord(tip.triggerElement).get('SyncErrorMessage');
+                if (tooltip) {
+                    tip.update(tooltip);
+                } else {
+                    return false;
+                }
+            }
+        }
+    });
+}
+Ext.QuickTips.init();
+
 var DrinkGridExt = (function () {
     var me = {};
 
@@ -110,6 +136,9 @@ Ext.define('Transactions.view.DrinkGrid', {
                 case 'SyncError':
                     return "row-error";
             }
+        },
+        listeners: {
+            render: createTooltip
         }
     },
     dockedItems: [{

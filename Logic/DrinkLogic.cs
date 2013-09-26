@@ -51,5 +51,14 @@ namespace Grid.Auth.Logic
         {
             return data.ToObject<DrinkModel>();
         }
+
+        public override BatchActionError ValidateObject(string internalId, DrinkModel item)
+        {
+            if (item.Type.ToLowerInvariant().Contains("vodka"))
+            {
+                return new BatchActionError() {InternalId = internalId, Message = "No vodka allowed!"};
+            }
+            return null;
+        }
     }
 }

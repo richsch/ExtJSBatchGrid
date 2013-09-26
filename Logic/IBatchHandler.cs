@@ -19,36 +19,57 @@ namespace Grid.Auth.Logic
         public abstract void Update(IEnumerable<T> data);
         public abstract void Delete(IEnumerable<T> data);
         public abstract T ConvertObject(JObject data);
+        public abstract BatchActionError ValidateObject(string internalId, T item);
 
-        public override IEnumerable<BatchAction> HandleCreate(IEnumerable<BatchAction> data)
+        public override Batch HandleCreate(Batch data)
         {
-            var items = data.Select(d => d.Data).Select(ConvertObject);
-            var results = Create(items).ToArray();
+            var items = data.Actions.Select(d => d.Data).Select(ConvertObject);
+            var errors = data.Actions.Select(d => ValidateObject(d.InternalId, ConvertObject(d.Data))).Where(d => d != null);
 
-            var returnResult = data.ToArray();
-            for (int i = 0; i < results.Length; i++)
+            var returnResult = data.Actions.ToArray();
+            if (!errors.Any())
             {
-                returnResult[i].Data["ID"] = results[i].ID;
+                var results = Create(items).ToArray();
+                for (int i = 0; i < results.Length; i++)
+                {
+                    returnResult[i].Data["ID"] = results[i].ID;
+                }
             }
 
-            return returnResult;
+            var finalResult = new Batch()
+                {
+                    Actions = returnResult,
+                    Errors = errors
+                };
+            return finalResult;
         }
 
-        public override void HandleUpdate(IEnumerable<JObject> data)
+        public override IEnumerable<BatchActionError> HandleUpdate(Batch data)
         {
-            Update(data.Select(ConvertObject));
+            var errors = data.Actions.Select(d => ValidateObject(d.InternalId, ConvertObject(d.Data))).Where(d => d != null);
+
+            if (!errors.Any())
+            {
+                var items = data.Actions.Select(d => d.Data).Select(ConvertObject);
+                Update(items);
+            }
+            return errors;
         }
 
-        public override void HandleDelete(IEnumerable<JObject> data)
+        public override IEnumerable<BatchActionError> HandleDelete(Batch data)
         {
-            Delete(data.Select(ConvertObject));
+            var errors = new List<BatchActionError>();
+
+            Delete(data.Actions.Select(d => ConvertObject(d.Data)));
+
+            return errors;
         }
     }
 
     public abstract class BatchHandler
     {
-        public abstract IEnumerable<BatchAction> HandleCreate(IEnumerable<BatchAction> data); 
-        public abstract void HandleUpdate(IEnumerable<JObject> data);
-        public abstract void HandleDelete(IEnumerable<JObject> data);
+        public abstract Batch HandleCreate(Batch data);
+        public abstract IEnumerable<BatchActionError> HandleUpdate(Batch data);
+        public abstract IEnumerable<BatchActionError> HandleDelete(Batch data);
     }
 }

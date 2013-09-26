@@ -51,5 +51,10 @@ namespace Grid.Auth.Logic
         {
             return data.ToObject<SportModel>();
         }
+
+        public override BatchActionError ValidateObject(string internalId, SportModel item)
+        {
+            return null;
+        }
     }
 }

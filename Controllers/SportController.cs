@@ -34,16 +34,28 @@ namespace Grid.Auth.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        public void Put([FromBody]IEnumerable<SportModel> data)
+        public HttpResponseMessage Put([FromBody]IEnumerable<SportModel> data)
         {
             var logic = new SportLogic();
             logic.Update(data);
+            var result = new
+            {
+                success = true,
+                message = ""
+            };
+            return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        public void Delete(IEnumerable<SportModel> data)
+        public HttpResponseMessage Delete(IEnumerable<SportModel> data)
         {
             var logic = new SportLogic();
             logic.Delete(data);
+            var result = new
+            {
+                success = true,
+                message = ""
+            };
+            return Request.CreateResponse(HttpStatusCode.OK, result);
         }
     }
 }

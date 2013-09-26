@@ -76,14 +76,56 @@ var BatchProxyHandler = (function () {
     }
     
     function handleStoreSyncResponse(response, opts) {
-        var results = Ext.decode(response.responseText);
-        for (var i = 0; i < results.length; i++) {
-            var store = getStore(results[i].Store);
+        var responseData = Ext.decode(response.responseText);
+        if (responseData.success) {
+            var results = responseData.data;
+            for (var i = 0; i < results.length; i++) {
+                var store = getStore(results[i].Store);
 
-            handleStoreCreates(store, results[i].Create);
-            handleStoreUpdates(store);
-            handleStoreDeletes(store);
-            store.fireEvent('datachanged', store);
+                handleStoreCreates(store, results[i].Create);
+                handleStoreUpdates(store);
+                handleStoreDeletes(store);
+                store.fireEvent('datachanged', store);
+            }
+        } else {
+            handleStoreErrors(responseData.data);
+        }
+    }
+    
+    function handleStoreErrors(data) {
+        for (var i = 0; i < data.length; i++) {
+            var store = getStore(data[i].Store);
+            
+            if (data[i].Create.Errors.length > 0) {
+                handleStoreDataErrors(store, data[i].Create.Errors);
+            }
+            if (data[i].Update.Errors.length > 0) {
+                handleStoreDataErrors(store, data[i].Update.Errors);
+            }
+            if (data[i].Destroy.Errors.length > 0) {
+                handleStoreDestroyErrors(store, data[i].Destroy.Errors);
+            }
+        }
+    }
+    
+    function handleStoreDataErrors(store, data) {
+        for (var i = 0; i < data.length; i++) {
+            // for each error item: 
+            //      - find the record based on the internalId
+            //      - set syncstate
+            //      - set syncmessage
+            var record = getRecordWithInternalId(data[i].InternalId, store.getModifiedRecords());
+            
+            if (record != undefined) {
+                record.set('SyncState', 'SyncError');          // Change icon
+                record.set('SyncErrorMessage', data[i].Message);  // Was used by tooltip to show general errors - now use data-errorqtip on Status icon cell   
+            }
+        }
+    }
+    
+    function handleStoreDestroyErrors(store, data) {
+        for (var i = 0; i < data.length; i++) {
+            alert(data[i].Message);
         }
     }
     
@@ -98,6 +140,8 @@ var BatchProxyHandler = (function () {
         var updates = store.getUpdatedRecords();
         for (var i = 0; i < updates.length; i++) {
             if (updates[i].index != undefined) {
+                updates[i].set('SyncState', 'Synced');
+                updates[i].set('SyncErrorMessage', '');
                 updates[i].commit();
             }
         }
@@ -108,9 +152,11 @@ var BatchProxyHandler = (function () {
         // and update the ID of the record with the new ID from the server/DB
         var added = store.getNewRecords();
         for (var i = 0; i < added.length; i++) {
-            var record = getRecordWithInternalId(added[i].internalId, results);
+            var record = getRecordWithInternalId(added[i].internalId, results.Actions);
             if (record != undefined) {
                 added[i].set('ID', record.ID);
+                added[i].set('SyncState', 'Synced');
+                added[i].set('SyncErrorMessage', '');
                 added[i].commit();
             }
         }
@@ -118,8 +164,11 @@ var BatchProxyHandler = (function () {
     
     function getRecordWithInternalId(internalId, list) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].InternalId === internalId)
-                return list[i].Data;
+            if (list[i].InternalId === internalId || list[i].internalId === internalId) {
+                if (list[i].Data)
+                    return list[i].Data;
+                return list[i];
+            }
         }
         return undefined;
     }
@@ -141,12 +190,22 @@ var BatchProxyHandler = (function () {
             var additions = s.getNewRecords();
             var updates = s.getUpdatedRecords();
 
+            Ext.each(deletions, function(rec, index) {
+                rec.set('SyncState', 'Syncing');
+            });
+            Ext.each(additions, function(rec, index) {
+                rec.set('SyncState', 'Syncing');
+            });
+            Ext.each(updates, function(rec, index) {
+                rec.set('SyncState', 'Syncing');
+            });
+
             if (deletions.length > 0 || additions.length > 0 || updates.length > 0) {
                 results.push({
                     Store: s.storeId,
-                    Create: createTuple(additions),
-                    Update: createTuple(updates),
-                    Destroy: createTuple(deletions),
+                    Create: { Actions: createTuple(additions) },
+                    Update: { Actions: createTuple(updates) },
+                    Destroy: { Actions: createTuple(deletions) },
                 });
             }
         }
